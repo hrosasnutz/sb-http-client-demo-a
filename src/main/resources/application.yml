@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: sb-http-client-demo-a
+  docker:
+    compose:
+      enabled: false
+  cloud:
+    gateway:
+      proxy:
+        headers:
+          Accept-Encoding: identity
+          
+server:
+  port: 8080
+
+logging:
+  level:
+    io.codegitters: debug
+
