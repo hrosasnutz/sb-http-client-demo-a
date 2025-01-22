@@ -4,8 +4,13 @@ import io.codegitters.sb_http_client_demo_a.client.JsonPlaceHolderApiClient;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.timelimiter.TimeLimiterConfig;
 import io.netty.channel.ChannelOption;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
+import javax.net.ssl.SSLException;
+import lombok.SneakyThrows;
 import org.springframework.cloud.circuitbreaker.resilience4j.Resilience4JCircuitBreakerFactory;
 import org.springframework.cloud.circuitbreaker.resilience4j.Resilience4JConfigBuilder;
 import org.springframework.cloud.client.circuitbreaker.Customizer;
@@ -23,6 +28,13 @@ import java.util.concurrent.TimeUnit;
 
 @Configuration
 public class ApiClientConfig {
+
+    @SneakyThrows
+    private SslContext noOpSslContext() {
+        return SslContextBuilder.forClient()
+            .trustManager(InsecureTrustManagerFactory.INSTANCE)
+            .build();
+    }
     
     @Bean
     WebClient.Builder apiWebClientBuilder() {
@@ -32,7 +44,9 @@ public class ApiClientConfig {
                         .doOnConnected(cnn -> cnn
                                 .addHandlerFirst(new ReadTimeoutHandler(10, TimeUnit.SECONDS))
                                 .addHandlerLast(new WriteTimeoutHandler(10, TimeUnit.SECONDS)))
-                        .responseTimeout(Duration.ofSeconds(5))));
+                        .responseTimeout(Duration.ofSeconds(5))
+                        .secure(ctx -> ctx.sslContext(noOpSslContext()))));
+//                .exchangeStrategies();// SET CUSTOM OBJECT MAPPER
     }
     
     @Bean

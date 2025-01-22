@@ -1,6 +1,7 @@
 package io.codegitters.sb_http_client_demo_a.config;
 
 import io.codegitters.sb_http_client_demo_a.client.JsonPlaceHolderApiClient;
+import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
@@ -18,17 +19,18 @@ public class InitializerConfig implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         jsonPlaceHolderApiClient.getAllUsers()
                 .next()
-                .doOnNext(u -> log.debug("First User by Reactor: {}", u))
+                .doOnNext(u -> log.debug("First User using Reactor: {}", u))
                 .doOnError(e -> log.error("Error on get All Users", e))
                 .subscribe();
         
         jsonPlaceHolderApiClient.getAllComments()
                 .firstElement()
-                .doOnSuccess(c -> log.debug("First Comment by RxJava: {}", c))
+                .doOnSuccess(c -> log.debug("First Comment using RxJava: {}", c))
                 .doOnError(e -> log.error("Error on get All Comments", e))
                 .subscribe();
         
-        jsonPlaceHolderApiClient.getCommentById(-1L)
+        jsonPlaceHolderApiClient.getCommentById(3L)
+                .doOnSuccess(c -> log.debug("Comment by Id using RxJava: {}", c))
                 .doOnError(e -> log.error("Error on get Comment by Id", e))
                 .subscribe();
     }
