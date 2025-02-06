@@ -1,6 +1,7 @@
 package io.codegitters.sb_http_client_demo_a.config;
 
 import io.codegitters.sb_http_client_demo_a.client.JsonPlaceHolderApiClient;
+import io.codegitters.sb_http_client_demo_a.config.filter.DefaultWebClientExchangeFilter;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.timelimiter.TimeLimiterConfig;
 import io.netty.channel.ChannelOption;
@@ -9,14 +10,12 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
-import javax.net.ssl.SSLException;
 import lombok.SneakyThrows;
 import org.springframework.cloud.circuitbreaker.resilience4j.Resilience4JCircuitBreakerFactory;
 import org.springframework.cloud.circuitbreaker.resilience4j.Resilience4JConfigBuilder;
 import org.springframework.cloud.client.circuitbreaker.Customizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
@@ -45,7 +44,8 @@ public class ApiClientConfig {
                                 .addHandlerFirst(new ReadTimeoutHandler(10, TimeUnit.SECONDS))
                                 .addHandlerLast(new WriteTimeoutHandler(10, TimeUnit.SECONDS)))
                         .responseTimeout(Duration.ofSeconds(5))
-                        .secure(ctx -> ctx.sslContext(noOpSslContext()))));
+                        .secure(ctx -> ctx.sslContext(noOpSslContext()))))
+                .filter(new DefaultWebClientExchangeFilter());
 //                .exchangeStrategies();// SET CUSTOM OBJECT MAPPER
     }
     
